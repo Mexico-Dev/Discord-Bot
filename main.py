@@ -4,7 +4,6 @@ from discord import Intents
 from discord.ext import commands
 
 # ----- Setup ----- #
-paths = {"commands": r"commands"}
 intents = Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix=">", intents=intents)
@@ -26,11 +25,10 @@ async def ping(ctx, name: str = None):
     name = name or ctx.author.name
     await ctx.respond(f"Hello {name}!")
     
-
-for file in listdir(paths["commands"]):
-    if file.endswith(".py"):
-        bot.load_extension(f"{paths['commands']}.{file[:-3]}")
-
+# Load the commands from the commands folder 
+for file in listdir("commands"):
+    if file.endswith(".py"): # Only load .py files
+        bot.load_extension(f"commands.{file[:-3]}") # Remove the .py from the file name "file.py" -> "commands.file"
 
 load_dotenv()
 bot.run(environ["DISCORD-TOKEN"])

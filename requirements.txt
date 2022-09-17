@@ -1,0 +1,8 @@
+# Discord-Bot/main.py: 4
+# Discord-Bot/utils.py: 1
+# Discord-Bot/commamds/announcements.py: 1
+# Discord-Bot/commamds/roles.py: 1
+py_cord == 2.1.3
+
+# Discord-Bot/main.py: 2
+python_dotenv == 0.21.0
