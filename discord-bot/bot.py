@@ -98,6 +98,20 @@ class Bot(commands.Bot):
     ):
         return await super().get_context(origin, cls=cls)
 
+    async def on_command_error(self, ctx: utils.Context, error: commands.CommandError):
+        err = getattr(error, "original", error)
+        err = getattr(err, "original", err) # original hybrid command error
+        if isinstance(err, commands.CommandNotFound):
+            return
+        elif isinstance(err, commands.NoPrivateMessage):
+            await ctx.send("Este comando no se puede usar en mensajes privados")
+        else:
+            await ctx.send(f"{err.__class__.__name__}: {err}")
+
+        print(f"In {ctx.command.qualified_name}:", file=sys.stderr)
+        traceback.print_tb(err.__traceback__)
+        print(f"{err.__class__.__name__}: {err}", file=sys.stderr)
+
     async def on_ready(self):
         print(f"Ready: {self.user} (ID: {self.user.id})")
 
