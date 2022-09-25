@@ -1,10 +1,9 @@
 from dotenv import load_dotenv
-from os import getenv
+from os import environ
 
 
 class Environment:
     def __init__(self) -> None:
         load_dotenv()
-        self.discord_token = getenv("DISCORD_TOKEN")
-        self.guild = getenv("GUILD")
-    
+        for k, v in environ.items():
+            setattr(self, k.lower(), v)
