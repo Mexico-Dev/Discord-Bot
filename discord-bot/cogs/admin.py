@@ -70,7 +70,7 @@ class Announcement(commands.Converter):
 
 
 class AnnouncementEncoder(json.JSONEncoder):
-    def default(self, obj):
+    def default(self, obj: Any) -> Any:
         if isinstance(obj, Announcement):
             return obj.to_dict()
         
@@ -100,6 +100,7 @@ class Admin(utils.Cog):
     
     @commands.command()
     async def announce(self, ctx: utils.Context, channel: discord.TextChannel, *, announcement: Announcement):
+        """Envía un anuncio a un canal especifico"""
         msg = await channel.send(" ".join(map(str, announcement.mentions)), embed=announcement.embed)
         announcement.message_id = msg.id
         
