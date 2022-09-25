@@ -17,7 +17,9 @@ class Announcement(commands.Converter):
 
     async def convert(self, ctx: utils.Context, argument: str):
         data: dict = json.loads(self.regex.findall(argument)[0][1])
-        channel = data.pop("channel")
+        if not data:
+            raise Exception("missing data")
+        
         mentions = data.pop("mentions", [])
         if mentions:
             mentions = [
@@ -48,7 +50,7 @@ class Announcement(commands.Converter):
             embed.add_field(**field)
         
         ad = Announcement(
-            0, channel_id=channel, embed=embed, mentions=mentions
+            0, channel_id=1, embed=embed, mentions=mentions
         )
         
         return ad
@@ -103,6 +105,7 @@ class Admin(utils.Cog):
         """Envía un anuncio a un canal especifico"""
         msg = await channel.send(" ".join(map(str, announcement.mentions)), embed=announcement.embed)
         announcement.message_id = msg.id
+        announcement.channel_id = channel.id
         
         await self.announces.put(ctx.message.id, announcement)
         await ctx.reply("Anuncio enviado!", allowed_mentions=discord.AllowedMentions(roles=True, everyone=True))
