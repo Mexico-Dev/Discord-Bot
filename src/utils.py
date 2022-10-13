@@ -2,8 +2,9 @@ from discord.ext.commands import Bot, Cog
 
 # Cogs ------------------------------
 Base = type("Base", (object,), {"__init__": lambda self, bot: setattr(self, "bot", bot)}) # Create a base inheritance
-def link(bot: Bot, typeof: Cog) -> None: 
-    bot.add_cog(typeof(bot))  # Link the cog to the bot
+async def link(bot: Bot, typeof: Cog) -> None: 
+    await bot.add_cog(typeof(bot))  # Link the cog to the bot
+
 
 # Roles ------------------------------
 class MultiDict(dict):
@@ -29,4 +30,3 @@ class MultiDict(dict):
     def get(self, key, default=None):
         key = self.__search(key) or key
         return super().get(key, default)
-    

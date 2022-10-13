@@ -1,20 +1,20 @@
 from discord import Embed, TextChannel, Colour
-from discord.abc import Mentionable
 from discord.ext.commands import Cog, command, has_permissions
-from utils import Base, link
+from discord.abc import Role
+from src.utils import Base, link
 import re, json
 
 # Administration Command
-class Announcement(Base, Cog):
+class Announce(Base, Cog):
     def __init__(self, bot) -> None:
         super().__init__(bot)
         self.announces = {}
+        # This regex is for the code blocks in the message ```json\n{...}\n```
         self.regex = re.compile(r"```(.*)\n*([\s\S]*?)\n*```", flags=re.MULTILINE)
         
     @has_permissions(mention_everyone=True)
     @command("announce", aliases=["news", "proclaim", "spot"], description="Envía un anuncio a un canal especifico")
     async def command_announce(self, ctx):
-        # This regex is for the code blocks in the message ```json\n{...}\n```
         message = ctx.message.content
 
         if len(message) < 0 and not self.regex.search(message):
@@ -44,7 +44,7 @@ class Announcement(Base, Cog):
             embed: Embed = Embed(**message)
             channel: TextChannel = ctx.guild.get_channel(channel)  # Get the channel from the id
             if mentions:
-                mentions: list[Mentionable] = [
+                mentions: list[Role] = [
                     ctx.guild.get_role(role) 
                     if role != "everyone" else 
                     ctx.guild.default_role for role in mentions
@@ -100,4 +100,4 @@ class Announcement(Base, Cog):
             
             await message.edit(content=" ".join(map(str, mentions)), embed=embed)
 
-setup = lambda bot: link(bot, Announcement)
+setup = lambda bot: link(bot, Announce)

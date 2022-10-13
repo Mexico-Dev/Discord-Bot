@@ -1,34 +1,45 @@
-from os import listdir, environ
-from dotenv import load_dotenv
-from discord import Intents
+import discord
 from discord.ext import commands
+from src import Environment, Arguments
+from commands import modules
 
-# ----- Setup ----- #
-intents = Intents.default()
-intents.message_content = True
-bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
-@bot.event
-async def on_ready():
-    print("\x1b[1;32m[+]\x1b[0m Bot is currently online")
-    print(f"\t\x1b[1;30m[!]\x1b[0m Current Prefix: {bot.command_prefix}")
-    print(f"\t\x1b[1;30m[!]\x1b[0m Connected to Discord as: {bot.user.name}#{bot.user.discriminator}")
-    print(f"\t\x1b[1;30m[!]\x1b[0m Logged in as: {bot.user.id}")  
+class Bot(commands.Bot):
+    def __init__(self, env: str, case_insensitive: bool, reconnect: bool) -> None:
+        self.env = Environment(env)
+        self.reconnect = reconnect
 
-@bot.command(name="reload")
-async def admin_ping(ctx):
-    await ctx.send("pong")
+        allowed_mentions = discord.AllowedMentions(
+            roles=True, everyone=True, users=True
+        )
 
-# ----- Commands ----- #
-@bot.slash_command()
-async def ping(ctx, name: str = None):
-    name = name or ctx.author.name
-    await ctx.respond(f"Hello {name}!")
-    
-# Load the commands from the commands folder 
-for file in listdir("commands"):
-    if file.endswith(".py"): # Only load .py files
-        bot.load_extension(f"commands.{file[:-3]}") # Remove the .py from the file name "file.py" -> "commands.file"
+        super().__init__(
+            command_prefix=self.env.prefix,
+            description=self.env.description,
+            allowed_mentions=allowed_mentions,
+            intents=discord.Intents.all(),
+            case_insensitive=case_insensitive,
+            help_command=None
+        )
 
-load_dotenv()
-bot.run(environ["DISCORD-TOKEN"])
+    async def on_ready(self) -> None:
+        print(f"Logged in as {self.user} (ID: {self.user.id})")
+        print("------")
+
+    async def setup_hook(self) -> None:
+        for module in modules:
+            await self.load_extension(module)
+
+        await self.tree.sync()
+        return await super().setup_hook()
+
+    def run(self) -> None:
+        super().run(
+            token=self.env.token,
+            reconnect=self.reconnect
+        )
+
+
+if __name__ == "__main__":
+    args = Arguments()
+    Bot(**args).run()
