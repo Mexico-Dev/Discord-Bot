@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from src import Environment, Arguments
+from src import Environment, Arguments, CommandError
 from commands import modules
 
 
@@ -25,6 +25,16 @@ class Bot(commands.Bot):
     async def on_ready(self) -> None:
         print(f"Logged in as {self.user} (ID: {self.user.id})")
         print("------")
+
+    async def on_command_error(self, ctx, error) -> None:
+        if isinstance(error, CommandError):
+            typed = getattr(error, "type", None)
+            if typed == "Embed":
+                await ctx.reply(embed=error.embed)
+            else:
+                await ctx.reply(error)
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.send("Este comando está en cooldown, intenta de nuevo en {} segundos.".format(int(error.retry_after)), delete_after=10)
 
     async def setup_hook(self) -> None:
         for module in modules:
