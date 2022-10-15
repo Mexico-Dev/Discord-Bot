@@ -1,7 +1,6 @@
 from discord.ext.commands import Cog, hybrid_command, cooldown, BucketType
-from discord import app_commands, Embed
-from src.utils import Base, link
-from src import CommandError
+from discord import app_commands, Embed, TextChannel
+from src.utils import Base, link, CommandError
 
 
 # Typing
@@ -13,7 +12,7 @@ class User(TypedDict):
 
 class Suggestion(Base, Cog):
     suggestions = {}
-    channel = property(lambda self: self.bot.get_channel(
+    channel: TextChannel = property(lambda self: self.bot.get_channel(
         int(self.bot.env["suggestion_channel"])))
 
     @cooldown(1, (3600*24), BucketType.user)
@@ -45,18 +44,18 @@ class Suggestion(Base, Cog):
         if not 4 <= len(title) <= 24:
             reset()
             raise CommandError(
-                type="Embed",
+                typeof="embed",
                 title=f"Mmmm, tu titulo no es muy expresivo, intenta con uno más {('largo', 'corto')[len(title) > 24]}.",
                 message="Para que tu sugerencia sea mas atractiva, intenta usar un titulo que sea corto y conciso. Pero tampoco te excedas, ya que un titulo muy largo puede ser difícil de entender y no llamar la atención de nadie. Te recomendamos que sea de 4 a 24 caracteres. Asi podrás captar la atención de los demás usuarios y staff.",
-                meta={"color": "#3A86FF"}
+                meta={"color": "#FFBE0B"}
             )
         if not 50 <= len(description) <= 1024:
             reset()
             raise CommandError(
-                type="Embed",
+                typeof="embed",
                 title=f"Tu descripción es demasiado {('corta', 'larga')[len(description) > 1024]}.",
                 message="Para que todos entiendan lo que quieres decir, explaya tu idea, que no quede duda de lo que quieres decir. Pero tampoco te excedas, ya que una descripción desmesurada puede que a nadie le interese leer. Te recomendamos que tu descripción sea de 50 a 1024 caracteres.",
-                meta={"color": "#3A86FF"}
+                meta={"color": "#FFBE0B"}
             )
 
         embed = Embed(title=title, description=description, color=0x2F3136)
@@ -82,4 +81,4 @@ class Suggestion(Base, Cog):
             embed.description = " ".join(description)
             await suggestion.edit(embed=embed)
 
-def setup(bot): return link(bot, Suggestion)
+setup = lambda bot: link(bot, Suggestion)

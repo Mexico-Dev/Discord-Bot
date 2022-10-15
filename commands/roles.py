@@ -4,6 +4,8 @@ from discord import Embed, Colour, SelectOption
 from src.utils import Base, MultiDict, link
 import json
 
+
+# Tree commands
 class Roles(Base, Cog):
     def __init__(self, bot):
         Base.__init__(self, bot)
