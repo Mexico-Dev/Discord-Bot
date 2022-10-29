@@ -1,31 +1,3 @@
-# Base class for all cogs ---------------------------
-from discord.ext.commands import Bot, Cog
-
-Base = type("Base", (object,), {"__init__": lambda self, bot: setattr(self, "bot", bot)})  # Create a base inheritance
-async def link(bot: Bot, typeof: Cog) -> None:
-    await bot.add_cog(typeof(bot))
-# --------------------------------------------------
-# Command Error ------------------------------------
-from discord.ext.commands import CommandError as _CommandError
-from dataclasses import dataclass, field
-from typing import Literal
-
-
-@dataclass
-class CommandError(_CommandError):
-    title: str
-    message: str
-    typeof: Literal["str", "embed"] = "str"
-    meta: dict = field(default_factory=lambda: {"color": "#FF006E"}) # Kwargs for the embed constructor
-
-    embed = property(lambda self: EmbedConstructor.convert(
-        {"title": self.title, "description": self.message, **self.meta}
-    ))
-
-    def __str__(self):
-        return f"""**{self.title}**\n{self.message}"""
-# --------------------------------------------------
-# Embed constructor --------------------------------
 from discord import Embed, Colour
 from datetime import datetime
 from typing import Literal
@@ -139,6 +111,7 @@ class EmbedConstructor:
     
     @staticmethod
     def loader(string: str, type_:Literal["json", "toml", "yaml"]) -> dict:
+        from command_error import CommandError
         if type_:
             try:
                 return EmbedConstructor.converters[type_](string)
@@ -161,30 +134,3 @@ class EmbedConstructor:
             message="El contenido de la cadena no es válido para ninguno de los formatos soportados.",
             meta=EmbedConstructor.error
         )
-# --------------------------------------------------
-
-
-class MultiDict(dict):
-    """A multi-keyed dictionary."""
-
-    def __search(self, key: str):
-        for k in self:
-            if key in k and isinstance(k, (tuple, list)):
-                return k
-        return None
-
-    def __setitem__(self, key, value):
-        key = self.__search(key) or key
-        return super().__setitem__(key, value)
-
-    def __getitem__(self, key):
-        key = self.__search(key) or key
-        return super().__getitem__(key)
-
-    def __delitem__(self, key):
-        key = self.__search(key) or key
-        return super().__delitem__(key)
-
-    def get(self, key, default=None):
-        key = self.__search(key) or key
-        return super().get(key, default)

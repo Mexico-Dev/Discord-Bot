@@ -1,6 +1,6 @@
 from discord.ext.commands import Cog, hybrid_command, cooldown, BucketType
 from discord import app_commands, Embed, TextChannel
-from src.utils import Base, link, CommandError
+from src.utils import Base, link, CommandError, Storage
 
 
 # Typing
@@ -11,7 +11,7 @@ class User(TypedDict):
 
 
 class Suggestion(Base, Cog):
-    suggestions = {}
+    suggestions = Storage(life_time=60 * 5)
     channel: TextChannel = property(lambda self: self.bot.get_channel(
         int(self.bot.env["suggestion_channel"])))
 
