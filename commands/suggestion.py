@@ -31,7 +31,7 @@ class Suggestion(Base, Cog):
 
         embed = self.__create_embed(title, description, user, reset)
         message = await self.channel.send(embed=embed)
-        
+
         if not ctx.interaction:
             self.suggestions[ctx.message.id] = (message.id, embed)            
         await message.add_reaction("✅"); await message.add_reaction("❌")
@@ -41,7 +41,7 @@ class Suggestion(Base, Cog):
         await ctx.reply("Sugerencia enviada con éxito", delete_after=10)
 
     def __create_embed(self, title: str, description: str, user: User, reset) -> Embed:
-        if not 4 <= len(title) <= 24:
+        if not 4 <= len(title) <= 48:
             reset()
             raise CommandError(
                 typeof="embed",
@@ -62,7 +62,7 @@ class Suggestion(Base, Cog):
         embed.set_footer(
             text=f"Sugerencia enviada por {user['name']}", icon_url=user['avatar'])
         return embed
-    
+
     @Cog.listener("on_message_delete")
     async def on_message_delete(self, message):
         if message.id in self.suggestions:
@@ -75,6 +75,7 @@ class Suggestion(Base, Cog):
         if before.id in self.suggestions:
             id_, embed = self.suggestions[before.id]
             suggestion = await self.channel.fetch_message(id_)
+        # TODO: Reparar el edit ya que al momento de hacer el corte del mensaje, se pierde contenido
             title, *description = after.content.split(" ")[1:]
             
             embed.title = title
